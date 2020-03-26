@@ -40,6 +40,10 @@ import java.util.UUID;
  * incoming connections, a thread for connecting with a device, and a
  * thread for performing data transmissions when connected.
  */
+
+// https://github.com/googlearchive/android-BluetoothChat
+// https://github.com/hehonghui/SnsAlbumsProject/blob/master/src/com/uit/snsalbum/bluetooth/BluetoothChatService.java
+
 public class BluetoothChatService {
     // Debugging
     private static final String TAG = "BluetoothChatService";
@@ -209,6 +213,8 @@ public class BluetoothChatService {
         mConnectedThread = new ConnectedThread(socket, socketType);
         mConnectedThread.start();
 
+        // Android 异步通信：手把手教你使用Handler消息传递机制（含实例Demo）
+        // https://blog.csdn.net/carson_ho/article/details/80305411
         // Send the name of the connected device back to the UI Activity
         Message msg = mHandler.obtainMessage(Constants.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();

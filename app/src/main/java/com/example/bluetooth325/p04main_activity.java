@@ -5,6 +5,13 @@ package com.example.bluetooth325;
 // https://www.youtube.com/watch?v=sifzY2SA1XU&list=PLgCYzUzKIBE8KHMzpp6JITZ2JxTgWqDH2&index=8
 // https://github.com/mitchtabian/Sending-and-Receiving-Data-with-Bluetooth
 
+/*
+
+蓝牙基本功能实现（开启，扫描，配对，连接等）
+https://mcl-123.github.io/2019/03/16/%E8%93%9D%E7%89%99%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD%E5%AE%9E%E7%8E%B0/
+
+ */
+
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -33,6 +40,7 @@ public class p04main_activity extends AppCompatActivity implements AdapterView.O
     BluetoothAdapter mBluetoothAdapter;
     Button btnEnableDisable_Discoverable;
 
+    // 01 宣告服務
     BluetoothConnectionService mBluetoothConnection;
 
     Button btnStartConnection;
@@ -43,7 +51,7 @@ public class p04main_activity extends AppCompatActivity implements AdapterView.O
     private static final UUID MY_UUID_INSECURE =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
-    BluetoothDevice mBTDevice;
+    BluetoothDevice mBTDevice = null;
 
     public ArrayList<BluetoothDevice> mBTDevices = new ArrayList<>();
 
@@ -222,12 +230,14 @@ public class p04main_activity extends AppCompatActivity implements AdapterView.O
             @Override
             public void onClick(View view) {
                 byte[] bytes = etSend.getText().toString().getBytes(Charset.defaultCharset());
+                // 04 發送資料
                 mBluetoothConnection.write(bytes);
             }
         });
 
     }
 
+    //
     //create method for starting connection
 //***remember the conncction will fail and app will crash if you haven't paired first
     public void startConnection(){
@@ -240,6 +250,7 @@ public class p04main_activity extends AppCompatActivity implements AdapterView.O
     public void startBTConnection(BluetoothDevice device, UUID uuid){
         Log.d(TAG, "startBTConnection: Initializing RFCOM Bluetooth Connection.");
 
+        // 03 建立連線
         mBluetoothConnection.startClient(device,uuid);
     }
 
@@ -270,6 +281,13 @@ public class p04main_activity extends AppCompatActivity implements AdapterView.O
 
     public void btnEnableDisable_Discoverable(View view) {
         Log.d(TAG, "btnEnableDisable_Discoverable: Making device discoverable for 300 seconds.");
+
+        mBTDevices = new ArrayList<>();
+     //   mDeviceListAdapter.notifyDataSetChanged();
+
+        mDeviceListAdapter = new DeviceListAdapter(this, R.layout.device_adapter_view, mBTDevices);
+        lvNewDevices.setAdapter(mDeviceListAdapter);
+
 
         Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
@@ -333,19 +351,23 @@ public class p04main_activity extends AppCompatActivity implements AdapterView.O
         mBluetoothAdapter.cancelDiscovery();
 
         Log.d(TAG, "onItemClick: You Clicked on a device.");
-        String deviceName = mBTDevices.get(i).getName();
+        String deviceName    = mBTDevices.get(i).getName();
         String deviceAddress = mBTDevices.get(i).getAddress();
 
         Log.d(TAG, "onItemClick: deviceName = " + deviceName);
         Log.d(TAG, "onItemClick: deviceAddress = " + deviceAddress);
 
-        //create the bond.
-        //NOTE: Requires API 17+? I think this is JellyBean
+        // 只有選取，沒有連線。
+        // create the bond.
+        // NOTE: Requires API 17+? I think this is JellyBean
         if(Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2){
             Log.d(TAG, "Trying to pair with " + deviceName);
             mBTDevices.get(i).createBond();
 
             mBTDevice = mBTDevices.get(i);
+
+            // 選定要連線的裝置，接續，
+            // 02 啟動連線服務
             mBluetoothConnection = new BluetoothConnectionService(p04main_activity.this);
         }
     }

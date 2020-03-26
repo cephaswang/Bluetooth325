@@ -1,5 +1,14 @@
 package com.example.bluetooth325;
 
+// 蓝牙概览
+// https://developer.android.com/guide/topics/connectivity/bluetooth?hl=zh-cn
+/*
+
+從BluetoothChat範例程式學藍芽連線原理
+http://lp43.blogspot.com/2012/04/bluetoothchat.html
+
+*/
+
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -23,6 +32,13 @@ public class BluetoothConnectionService {
 
     private static final String appName = "MYAPP";
 
+    // Name for the SDP record when creating server socket
+    private static final String NAME_SECURE   = "BluetoothChatSecure";
+    private static final String NAME_INSECURE = "BluetoothChatInsecure";
+
+    // Unique UUID for this application
+    private static final UUID MY_UUID_SECURE =
+            UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
     private static final UUID MY_UUID_INSECURE =
             UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
@@ -70,30 +86,34 @@ public class BluetoothConnectionService {
             mmServerSocket = tmp;
         }
 
+        // https://developer.android.com/guide/topics/connectivity/bluetooth?hl=zh-cn
         public void run(){
             Log.d(TAG, "run: AcceptThread Running.");
 
             BluetoothSocket socket = null;
+            // Keep listening until exception occurs or a socket is returned.
+            while (true) {
+                try {
+                    // This is a blocking call and will only return on a
+                    // successful connection or an exception
+                    Log.d(TAG, "run: RFCOM server socket start.....");
 
-            try{
-                // This is a blocking call and will only return on a
-                // successful connection or an exception
-                Log.d(TAG, "run: RFCOM server socket start.....");
+                    socket = mmServerSocket.accept();
 
-                socket = mmServerSocket.accept();
+                    Log.d(TAG, "run: RFCOM server socket accepted connection.");
 
-                Log.d(TAG, "run: RFCOM server socket accepted connection.");
+                } catch (IOException e) {
+                    Log.e(TAG, "AcceptThread: IOException: " + e.getMessage());
+                }
 
-            }catch (IOException e){
-                Log.e(TAG, "AcceptThread: IOException: " + e.getMessage() );
+                //talk about this is in the 3rd
+                if (socket != null) {
+                    connected(socket, mmDevice);
+                    break;
+                }
+
+                Log.i(TAG, "END mAcceptThread ");
             }
-
-            //talk about this is in the 3rd
-            if(socket != null){
-                connected(socket,mmDevice);
-            }
-
-            Log.i(TAG, "END mAcceptThread ");
         }
 
         public void cancel() {
@@ -113,11 +133,13 @@ public class BluetoothConnectionService {
      * succeeds or fails.
      */
     private class ConnectThread extends Thread {
+        // 網路套接字，網路插座
         private BluetoothSocket mmSocket;
 
+        // 建立連線
         public ConnectThread(BluetoothDevice device, UUID uuid) {
             Log.d(TAG, "ConnectThread: started.");
-            mmDevice = device;
+            mmDevice   = device;
             deviceUUID = uuid;
         }
 
@@ -129,7 +151,7 @@ public class BluetoothConnectionService {
             // given BluetoothDevice
             try {
                 Log.d(TAG, "ConnectThread: Trying to create InsecureRfcommSocket using UUID: "
-                        +MY_UUID_INSECURE );
+                        + MY_UUID_INSECURE );
                 tmp = mmDevice.createRfcommSocketToServiceRecord(deviceUUID);
             } catch (IOException e) {
                 Log.e(TAG, "ConnectThread: Could not create InsecureRfcommSocket " + e.getMessage());
@@ -162,6 +184,7 @@ public class BluetoothConnectionService {
             //will talk about this in the 3rd video
             connected(mmSocket,mmDevice);
         }
+
         public void cancel() {
             try {
                 Log.d(TAG, "cancel: Closing Client Socket.");
@@ -170,8 +193,8 @@ public class BluetoothConnectionService {
                 Log.e(TAG, "cancel: close() of mmSocket in Connectthread failed. " + e.getMessage());
             }
         }
-    }
 
+    }
 
 
     /**
@@ -209,12 +232,18 @@ public class BluetoothConnectionService {
     }
 
     /**
+     *
+     *  // Android 异步通信：手把手教你使用Handler消息传递机制（含实例Demo）
+     *  // https://blog.csdn.net/carson_ho/article/details/80305411
+     *  Handler使用方式 因发送消息到消息队列的方式不同而不同
+     *  共分为2种：使用Handler.sendMessage（）、使用Handler.post（）
+     *
      Finally the ConnectedThread which is responsible for maintaining the BTConnection, Sending the data, and
      receiving incoming data through input/output streams respectively.
      **/
     private class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
-        private final InputStream mmInStream;
+        private final InputStream   mmInStream;
         private final OutputStream mmOutStream;
 
         public ConnectedThread(BluetoothSocket socket) {
@@ -231,15 +260,14 @@ public class BluetoothConnectionService {
                 e.printStackTrace();
             }
 
-
             try {
-                tmpIn = mmSocket.getInputStream();
+                tmpIn  = mmSocket.getInputStream();
                 tmpOut = mmSocket.getOutputStream();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            mmInStream = tmpIn;
+            mmInStream  = tmpIn;
             mmOutStream = tmpOut;
         }
 
@@ -280,6 +308,8 @@ public class BluetoothConnectionService {
             } catch (IOException e) { }
         }
     }
+
+
 
     private void connected(BluetoothSocket mmSocket, BluetoothDevice mmDevice) {
         Log.d(TAG, "connected: Starting.");
