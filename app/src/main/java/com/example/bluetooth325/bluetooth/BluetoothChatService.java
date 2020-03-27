@@ -65,8 +65,8 @@ public class BluetoothChatService {
     private AcceptThread mInsecureAcceptThread;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
-    private int mState;
-    private int mNewState;
+    private int mState;    // 目前狀態
+    private int mNewState; // 變更後的狀態
 
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing

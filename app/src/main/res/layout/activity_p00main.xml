@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/title_left_text"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="TextView" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/button_on"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="btn_On_Bluetooth"
+            android:text="ON/OFF" />
+
+        <Button
+            android:id="@+id/button_visible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="visible"
+            android:onClick="btn_On_Visibility"
+            android:text="visible" />
+
+        <Button
+            android:id="@+id/button_action_found"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="btn_On_scan"
+            android:text="SCAN" />
+
+    </LinearLayout>
+
+    <ListView
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:id="@+id/lvNewDevices"/>
+
+    <ListView android:id="@+id/conversationList"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:stackFromBottom="true"
+        android:transcriptMode="alwaysScroll"
+        android:layout_weight="1"
+        />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <EditText android:id="@+id/edit_text_out"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="textPhonetic"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            />
+        <Button android:id="@+id/button_send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/send"
+            />
+    </LinearLayout>
+
+
+
+</LinearLayout>
